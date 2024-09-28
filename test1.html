@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tạo Podcast Post</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            padding: 20px;
+        }
+        .post-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .post-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .profile-pic {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #ccc;
+            margin-right: 15px;
+        }
+        textarea {
+            width: 100%;
+            border: none;
+            outline: none;
+            resize: none;
+            font-size: 16px;
+            padding: 10px;
+            border-radius: 8px;
+            min-height: 80px;
+            margin-bottom: 10px;
+        }
+        textarea::placeholder {
+            font-size: 16px;
+        }
+        .post-footer {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+        .post-footer button {
+            background-color: #1877f2;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .post-footer button:hover {
+            background-color: #145dbf;
+        }
+        .post-footer button:disabled {
+            background-color: #b0b3b8;
+            cursor: not-allowed;
+        }
+        .posts-container {
+            margin-top: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .post {
+            background-color: #fdf5e6;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            position: relative;
+            border-left: 5px solid #ff9500;
+        }
+        .post-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .post .profile-pic {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #ccc;
+            margin-right: 10px;
+        }
+        .post-content {
+            margin-bottom: 10px;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+        .author-note {
+            color: #ff9500;
+            font-size: 14px;
+            margin-bottom: 10px;
+            font-style: italic;
+        }
+        .post-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .post-footer .post-date {
+            font-size: 14px;
+            color: #555;
+        }
+        .author {
+            font-size: 16px;
+            font-weight: bold;
+            color: #444;
+            margin-top: 5px;
+        }
+        .speak-button {
+            background-color: #ff9500;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-left: 10px;
+        }
+        .speak-button:hover {
+            background-color: #e68a00;
+        }
+        .language-select {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="post-container">
+    <div class="post-header">
+        <div class="profile-pic"></div>
+        <div><strong>Tạo bài đăng</strong></div>
+    </div>
+    <textarea id="post-content" placeholder="Bạn đang nghĩ gì?"></textarea>
+    <div class="post-footer">
+        <div class="language-select">
+            <label for="language-select">Ngôn ngữ:</label>
+            <select id="language-select">
+                <option value="en-US">English</option>
+                <option value="vi-VN">Tiếng Việt</option>
+            </select>
+        </div>
+        <button id="post-button" disabled onclick="createPost()"><i class='bx bx-cloud-download'></i></button>
+    </div>
+</div>
+
+<div class="posts-container" id="posts-container"></div>
+
+<script>
+    const postButton = document.getElementById('post-button');
+    const postContent = document.getElementById('post-content');
+    const postsContainer = document.getElementById('posts-container');
+    const languageSelect = document.getElementById('language-select');
+
+    postContent.addEventListener('input', () => {
+        postButton.disabled = !postContent.value.trim();
+    });
+
+    window.onload = function() {
+        displaySavedPosts();
+    }
+
+    function createPost() {
+        const content = postContent.value.trim();
+        const currentDate = new Date().toLocaleString();
+        const author = "Dang Canh"; // Tên tác giả cố định cho ví dụ
+
+        savePost(content, currentDate, author);
+        displayPost(content, currentDate, author);
+
+        postContent.value = '';
+        postButton.disabled = true;
+    }
+
+    function displayPost(content, date, author, index = null) {
+        const postElement = document.createElement('div');
+        postElement.className = 'post';
+        
+        const headerElement = `
+            <div class="post-header">
+                <div class="profile-pic"><img src="avt.jpg" alt="" class="profile-pic"></div>
+                <div>
+                    <strong>${author}</strong>
+                    <div class="post-date">${date}</div>
+                </div>
+            </div>
+        `;
+        
+        const contentElement = `<p class="post-content">${content}</p>`;
+        const authorNote = `<p class="author-note">Episode note by: ${author}</p>`;
+        const speakButton = `<button class="speak-button" onclick="speak('${content}')">🔊</button>`;
+        
+        postElement.innerHTML = headerElement + contentElement + authorNote + `<div class="post-footer">${speakButton}</div>`;
+
+        postElement.addEventListener('dblclick', function() {
+            deletePost(index);
+        });
+
+        postsContainer.insertBefore(postElement, postsContainer.firstChild);
+    }
+
+    function savePost(content, date, author) {
+        const savedPosts = JSON.parse(localStorage.getItem('posts')) || [];
+        savedPosts.push({ content, date, author });
+        localStorage.setItem('posts', JSON.stringify(savedPosts));
+    }
+
+    function displaySavedPosts() {
+        const savedPosts = JSON.parse(localStorage.getItem('posts')) || [];
+        savedPosts.forEach((post, index) => {
+            displayPost(post.content, post.date, post.author, index);
+        });
+    }
+
+    function deletePost(index) {
+        let savedPosts = JSON.parse(localStorage.getItem('posts')) || [];
+        savedPosts.splice(index, 1); // Xóa bài đăng tại vị trí index
+        localStorage.setItem('posts', JSON.stringify(savedPosts));
+        refreshPosts();
+    }
+
+    function refreshPosts() {
+        postsContainer.innerHTML = ''; // Xóa hết nội dung hiện tại
+        displaySavedPosts(); // Hiển thị lại các bài đã lưu
+    }
+
+    function speak(content) {
+        const selectedLanguage = languageSelect.value;
+        const utterance = new SpeechSynthesisUtterance(content);
+        utterance.lang = selectedLanguage;
+        window.speechSynthesis.speak(utterance);
+    }
+</script>
+
+</body>
+</html>
